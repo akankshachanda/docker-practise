@@ -1,0 +1,135 @@
+========================================================================
+CAPSTONE PROJECT 2 - MAKE IT PRODUCTION-GRADE
+Docker Module - Advanced Capstone
+========================================================================
+
+GOAL
+------------------------------------------------------------------------
+Take the SAME 3-tier application from Project 1 (React frontend + FastAPI
+backend + PostgreSQL) and re-deploy it the way a real company would run it
+in production: behind a reverse proxy, on isolated networks, with resource
+limits, hardened images, and proper secrets.
+
+Deploy it to its OWN dedicated EC2 instance (separate from Project 1) and
+share the public IP. The app must open and work in a browser at that IP,
+with ONLY the web ports (80/443) exposed to the internet.
+
+
+STARTING POINT
+------------------------------------------------------------------------
+You already have Project 1 working. Do not start from a blank page. You are
+taking that working app and adding the production concerns on top of it.
+This is exactly how real work happens: first make it run, then make it good.
+
+
+WHAT MAKES THIS "PRODUCTION-GRADE" (everything you must add)
+------------------------------------------------------------------------
+
+1. A REVERSE PROXY AS THE SINGLE ENTRY POINT
+   - Put a reverse proxy (nginx or Traefik) in front of the whole app.
+   - It is the ONLY thing exposed to the internet.
+   - It routes traffic:
+         /       -> the frontend
+         /api    -> the backend
+   - The frontend and backend container ports are NOT published directly
+     to the host anymore. Only the proxy is reachable from outside.
+
+2. NETWORK ISOLATION (SECURITY TIERING)
+   - Use separate Docker networks so the tiers are isolated:
+       * The frontend must NOT be able to reach the database directly.
+       * Only the backend may talk to the database.
+   - The database must never be reachable from the internet.
+
+3. LOCK DOWN THE EC2 SECURITY GROUP
+   - The Security Group must allow ONLY port 80 (and 443 if you add HTTPS)
+     from the internet, plus 22 for your own SSH.
+   - Ports 8000 (backend) and 5432 (database) must NOT be open to the world.
+
+4. RESOURCE LIMITS
+   - Set CPU and memory limits on every service so no single container can
+     starve the host.
+
+5. HEALTHCHECKS AND RESTART POLICIES ON EVERY SERVICE
+   - Every service (not just the database) must have a healthcheck.
+   - Set a restart policy so containers recover automatically if they crash.
+
+6. OPTIMIZED AND HARDENED IMAGES
+   - Use multi-stage builds so final images are small and contain no build
+     tools or source code.
+   - Every image must run as a NON-ROOT user.
+   - Pin image versions (no "latest").
+   - Use minimal base images (alpine / slim).
+   - You must REPORT the final size of each image (run "docker images" and
+     include the sizes in your README). Show that your images are small.
+
+7. PERSISTENT STORAGE
+   - Named volume for the PostgreSQL data (and for any uploaded files).
+   - Data must survive "docker compose down" and "docker compose up".
+
+8. PROPER SECRETS HANDLING
+   - No passwords, keys, or secrets baked into any image or committed to Git.
+   - Use gitignored .env files or Docker secrets.
+
+9. DOCUMENTATION
+   - A clear README that includes:
+       * A short architecture description or diagram (how traffic flows:
+         internet -> proxy -> frontend/backend -> database).
+       * How to run the project.
+       * The design decisions you made and why.
+       * Your reported image sizes.
+
+
+REQUIREMENTS CHECKLIST (your project must include all of these)
+------------------------------------------------------------------------
+[ ] Runs on its OWN dedicated EC2 instance, reachable by public IP
+[ ] A reverse proxy is the single entry point (/ -> frontend, /api -> backend)
+[ ] ONLY ports 80/443 (and 22 for SSH) are open in the Security Group
+[ ] Backend and database ports are NOT exposed to the internet
+[ ] Separate Docker networks: frontend cannot reach the database directly
+[ ] CPU and memory limits set on every service
+[ ] Healthcheck AND restart policy on every service
+[ ] Multi-stage, non-root, version-pinned, minimal images
+[ ] Image sizes reported in the README
+[ ] Named volume(s) so data persists across restarts
+[ ] No secrets in images or Git; .env gitignored or Docker secrets used
+[ ] README with an architecture diagram and design notes
+
+
+OPTIONAL STRETCH GOALS (for extra credit)
+------------------------------------------------------------------------
+- Add HTTPS with a real domain name and a free Let's Encrypt certificate.
+- Run TWO backend replicas behind the reverse proxy (load balancing).
+- Add a monitoring container (for example, a simple metrics dashboard).
+
+
+WHAT YOU MUST SUBMIT
+------------------------------------------------------------------------
+1. The PUBLIC IP address of your dedicated EC2 instance (live and working;
+   only 80/443 should respond, not 8000 or 5432).
+2. A link to your GitHub repository with all Docker files, the compose
+   file, and the README with the architecture diagram and image sizes.
+3. A screenshot of the working app in the browser showing the EC2 IP.
+
+
+IMPORTANT - AVOID GETTING BILLED
+------------------------------------------------------------------------
+- Use only free-tier eligible resources (t2.micro).
+- STOP or TERMINATE the EC2 instance when you are done and it has been
+  checked.
+- Do not commit AWS keys, passwords, or .env files to GitHub.
+
+
+HOW YOU WILL BE JUDGED
+------------------------------------------------------------------------
+- Does the app work at the public IP through the reverse proxy?
+- Is it actually secured: only 80/443 open, database not reachable from
+  outside, frontend cannot reach the database directly?
+- Are the images hardened and small (multi-stage, non-root, sizes reported)?
+- Are resource limits, healthchecks, and restart policies in place?
+- Are secrets handled correctly (nothing sensitive in images or Git)?
+- Is the README clear, with an architecture diagram and design reasoning?
+
+Finishing this project means you can take an application from source code to
+a secure, production-style deployment on the cloud - a complete, portfolio-
+ready piece of work you can put on your resume and GitHub.
+========================================================================

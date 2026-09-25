@@ -1,0 +1,106 @@
+========================================================================
+CAPSTONE PROJECT 1 - DEPLOY THE APP TO THE CLOUD
+Docker Module - Foundational Capstone
+========================================================================
+
+GOAL
+------------------------------------------------------------------------
+Take the provided 3-tier application (React frontend + FastAPI backend +
+PostgreSQL database) and run the entire thing on a real AWS EC2 instance
+using Docker and Docker Compose.
+
+At the end you must share the PUBLIC IP address of your EC2 instance, and
+your application must open and work in a browser at that IP. "It works on
+my laptop" does not count. The proof is a live, reachable URL.
+
+
+THE APP YOU WILL DEPLOY
+------------------------------------------------------------------------
+You are given a complete working application (the Day 9 project). You do
+NOT need to write any application code. Your job is only to containerize
+it correctly and deploy it. The app has three parts:
+
+  1. Frontend  - a React app served by nginx
+  2. Backend   - a FastAPI (Python) REST API
+  3. Database  - PostgreSQL
+
+The three parts must talk to each other: the frontend calls the backend,
+and the backend reads and writes to the database.
+
+
+WHAT YOU MUST DO
+------------------------------------------------------------------------
+1. LAUNCH AN EC2 INSTANCE
+   - Use an Amazon Linux or Ubuntu instance.
+   - Use a t2.micro (free-tier eligible) instance.
+   - Configure the Security Group to allow the ports your app needs
+     (for example: 22 for SSH, and the port your frontend is served on).
+   - Note down the instance's public IP address.
+
+2. INSTALL DOCKER AND DOCKER COMPOSE ON THE EC2 INSTANCE
+   - Connect to the server over SSH.
+   - Install Docker and the Docker Compose plugin.
+   - Confirm both work (docker --version, docker compose version).
+
+3. GET THE APPLICATION ONTO THE SERVER
+   - Copy the project to the EC2 instance (git clone, or scp the files).
+
+4. BUILD AND RUN THE FULL STACK WITH DOCKER COMPOSE
+   - Bring up all three services with a single command:
+         docker compose up -d
+   - All three containers (frontend, backend, database) must be running.
+
+5. MAKE THE DATA PERSIST
+   - The PostgreSQL data must survive a restart.
+   - Use a named volume so that if you run "docker compose down" and then
+     "docker compose up" again, your data is still there.
+
+6. VERIFY IT IS LIVE
+   - Open http://<YOUR-EC2-PUBLIC-IP> in a browser.
+   - The frontend must load, must reach the backend, and the backend must
+     reach the database. The full app must work end to end.
+
+
+REQUIREMENTS CHECKLIST (your project must include all of these)
+------------------------------------------------------------------------
+[ ] Runs on a real EC2 instance, reachable by its public IP
+[ ] All 3 services (frontend, backend, database) run as containers
+[ ] The whole stack starts with one command: docker compose up
+[ ] A named volume is used so the database data survives restarts
+[ ] The services communicate with each other by service name (not IP)
+[ ] Secrets and environment values are in .env files, NOT hardcoded
+[ ] .env files are listed in .gitignore (never committed)
+[ ] A .dockerignore file is present so junk is not copied into images
+[ ] The frontend image runs as a non-root user
+[ ] The backend waits for the database to be ready (depends_on + healthcheck)
+
+
+WHAT YOU MUST SUBMIT
+------------------------------------------------------------------------
+1. The PUBLIC IP address of your running EC2 instance (must be live and
+   working when it is checked).
+2. A link to your GitHub repository containing all your Docker files,
+   the docker-compose file, and a short README explaining how to run it.
+3. A screenshot of the working app in the browser showing the EC2 IP in
+   the address bar.
+
+
+IMPORTANT - AVOID GETTING BILLED
+------------------------------------------------------------------------
+- Use only free-tier eligible resources (t2.micro).
+- STOP or TERMINATE your EC2 instance when you are done and it has been
+  checked. A running instance can cost money.
+- Do not commit AWS keys, passwords, or .env files to GitHub.
+
+
+HOW YOU WILL BE JUDGED
+------------------------------------------------------------------------
+- Does the app actually open and work at the public IP?  (most important)
+- Does the whole stack come up cleanly with one command?
+- Does the database data persist across a restart?
+- Is the project tidy: .env not committed,
+  non-root frontend, sensible structure?
+
+Once this project is working, you are ready for Project 2, where you take
+this same app and make it production-grade.
+========================================================================
